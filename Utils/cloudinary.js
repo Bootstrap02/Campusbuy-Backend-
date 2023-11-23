@@ -3,7 +3,7 @@ const cloudinary = require('cloudinary').v2;
 
 // Return "https" URLs by setting secure: true
 cloudinary.config({
-  secure: false
+  secure: true
 });
 
 // Log the configuration
@@ -27,10 +27,20 @@ const uploadImage = async (imagePath) => {
       // Upload the image
       const result = await cloudinary.uploader.upload(imagePath, options);
       console.log(result);
-      return{url: result.url};
+      return{url: result.secure_url,
+            public_id: result.public_id,
+            asset_id: result.asset_id,};
     } catch (error) {
       console.error(error);
     }
 };
 
-module.exports = uploadImage;
+
+const deleteImage = (image) => {
+    // Delete an image
+     cloudinary.uploader.destroy(image).then((result) => console.log(result));
+};
+
+
+
+module.exports = { uploadImage, deleteImage };

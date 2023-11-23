@@ -44,6 +44,7 @@ app.use('/deleteproduct', require('./Routes/productsRoute'));
 app.use('/addwishlist', require('./Routes/productsRoute'));
 app.use('/rateproduct', require('./Routes/productsCategoryRoute'));
 app.use('/uploadproductimage', require('./Routes/productImagesRoute'));
+app.use('/deleteproductimage', require('./Routes/productDeleteImageRoute'));
 app.use('/requestcallback', require('./Routes/callbackRequestRoute'));
 
 app.use('/createblog', require('./Routes/blogsRoute'));

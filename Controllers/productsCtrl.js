@@ -2,7 +2,7 @@ const Product = require('../Models/productsModel');
 const asyncHandler = require('express-async-handler');
 const User = require('../Models/usersModel');
 const slugify = require('slugify');
-const cloudinaryUploadImg = require('../Utils/cloudinary');
+const {uploadImage, deleteImage} = require('../Utils/cloudinary');
 const fs = require('fs');
 
 const createProduct = asyncHandler(
@@ -317,7 +317,7 @@ const getProducts = asyncHandler(
         async( req, res ) => {
             const {id} = req.params;
             try{
-            const uploader = async (path) => await cloudinaryUploadImg(path, "images");
+            const uploader = async (path) => await uploadImage(path, "images");
             
                 const urls = [];
                 const files = req.files;
@@ -346,7 +346,34 @@ const getProducts = asyncHandler(
         }
     );
 
-
+    const deleteImages = asyncHandler(async (req, res) => {
+        const { public_id } = req.params;
+        const { id } = req.body;
+    
+        try {
+            // Find the product by its ID
+            const findProduct = await Product.findOne({ _id: id });
+    
+            if (!findProduct) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
+    
+            // Remove the specified image ID from the images array
+            findProduct.images = findProduct.images.filter((image) => image.public_id !== public_id);
+    
+            // Save the updated product
+            const updatedProduct = await findProduct.save();
+    
+            // Delete the image from storage
+            await deleteImage(public_id, "images");
+    
+            res.status(201).json({ updatedProduct, message: 'Image deleted successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    });
+    
 
 
 
@@ -359,5 +386,6 @@ const getProducts = asyncHandler(
               addToWishlist, 
               rating, 
               uploadImages,
+              deleteImages,
               requestCallback 
         };
