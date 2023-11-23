@@ -2,15 +2,25 @@ const Product = require('../Models/productsModel');
 const asyncHandler = require('express-async-handler');
 const User = require('../Models/usersModel');
 const slugify = require('slugify');
+const cloudinaryUploadImg = require('../Utils/cloudinary');
+const fs = require('fs');
 
 const createProduct = asyncHandler(
     async(req, res) => {
+        const {address, mobile} = req.user;
+        console.log(req.user)
         try{
             if(req.body.title) {
                 req.body.slug = slugify(req.body.title, {lower: true});
             }
             if (!req.body.sold){
                 req.body.sold = 0;
+            }
+            if (!req.body.address){
+                req.body.address = address;
+            }
+            if (!req.body.mobile){
+                req.body.mobile = mobile;
             }
             const newProduct = await Product.create(req.body);
             return res.status(201).json(newProduct);
@@ -137,6 +147,8 @@ const getProducts = asyncHandler(
                 if (req.body.sold) product.sold = req.body.sold;
                 if (req.body.color) product.color = req.body.color;
                 if (req.body.ratings) product.ratings = req.body.ratings;
+                if (req.body.address) product.address = req.body.address;
+                if (req.body.mobile) product.mobile = req.body.mobile;
     
                 const newProduct = await product.save();
                 res.status(200).json(newProduct);
@@ -206,6 +218,49 @@ const getProducts = asyncHandler(
         }
     );
 
+    const requestCallback = asyncHandler(
+        async (req, res) => {
+            const { productId, phone } = req.body;
+            const { _id, firstname, lastname, mobile } = req.user;
+            const newMobile = phone || mobile;
+            try {
+                let user = await User.findById(_id);
+    
+                // Check if the user has already requested a callback for the product
+                const alreadyCalledback = user.callback.find((callbackItem) => callbackItem._id.toString() === productId);
+    
+                if (alreadyCalledback) {
+                    // If already requested, remove the callback from the array
+                    user = await User.findByIdAndUpdate(_id, {
+                        $pull: { callback: { _id: productId } },
+                    }, { new: true });
+    
+                    res.status(200).json({ user, message: 'Callback request unsent successfully!' });
+                } else {
+                    // If not requested, add the callback to the array
+                    user = await User.findByIdAndUpdate(_id, {
+                        $push: {
+                            callback: {
+                                _id: productId,
+                                firstname: firstname,
+                                lastname: lastname,
+                                mobile: newMobile,
+                            }
+                        },
+                    }, { new: true });
+    
+                    await user.save();
+                    res.status(201).json({ user, message: 'Callback request sent successfully!' });
+                }
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal Server Error' });
+            }
+        }
+    );
+    
+
+
     const rating = asyncHandler(
         async( req, res ) => {
             const { productId, star, comment } = req.body;
@@ -256,4 +311,53 @@ const getProducts = asyncHandler(
         }
     );
 
-module.exports = { createProduct, getAProduct, getProducts, updateAProduct, deleteAProduct, addToWishlist, rating };
+
+    
+    const uploadImages = asyncHandler(
+        async( req, res ) => {
+            const {id} = req.params;
+            try{
+            const uploader = async (path) => await cloudinaryUploadImg(path, "images");
+            
+                const urls = [];
+                const files = req.files;
+                console.log(files)
+                for (const file of files)
+                 {
+                    const {path} = file;
+                    const newPath = await uploader(path);
+                    console.log(path)
+                    urls.push(newPath);
+                    fs.unlinkSync(path);
+                }
+                const findProduct = await Product.findByIdAndUpdate(id, {
+            
+                        images: urls.map((file) => {return  file})
+                
+                },
+                 { new: true });
+                res.status(201).json({ findProduct, message: 'Images uploaded successfully' });
+            
+
+            }catch (error){
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error'});
+            }
+        }
+    );
+
+
+
+
+
+        module.exports = { 
+            createProduct,
+             getAProduct, 
+             getProducts,
+              updateAProduct, 
+              deleteAProduct, 
+              addToWishlist, 
+              rating, 
+              uploadImages,
+              requestCallback 
+        };

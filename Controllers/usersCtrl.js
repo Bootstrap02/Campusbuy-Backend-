@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 
 
 const createUser = asyncHandler(async (req, res) => {
-    const { firstname, lastname, email, mobile, password, roles } = req.body;
+    const { firstname, lastname, email, mobile, password, roles, address } = req.body;
 
     try {
         const existingUser = await User.findOne({ email: email });
@@ -23,6 +23,7 @@ const createUser = asyncHandler(async (req, res) => {
             lastname,
             email,
             mobile,
+            address,
             password: hashedPassword,
             roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
         });
@@ -35,7 +36,115 @@ const createUser = asyncHandler(async (req, res) => {
 });
 
 
+//login an Admin
+const adminLogin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
 
+    try {
+        const findUser = await User.findOne({ email: email }).exec();
+
+        if (!findUser) {
+            return res.status(401).json({ message: 'Unauthorized User Detected!' });
+        }
+        if(findUser.roles[0] !== '2030') {
+            return res.status(401).json({ message: 'Unauthoriz User Detected!' });
+            
+        }
+        const match = await bcrypt.compare(password, findUser.password);
+
+        if (!match) {
+            return res.status(401).json({ message: 'Unauthorized Username or Password detected!' });
+        }
+
+        const accessToken =  jwt.sign(
+            {
+                userInfo: {
+                    _id: findUser._id,
+                    roles: findUser.roles,
+                    firstname: findUser.firstname,
+                    lastname: findUser.lastname,
+                    email: findUser.email,
+                    mobile: findUser.mobile,
+                    address: findUser.address,
+                
+                }
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        );
+
+
+        const refreshToken = jwt.sign(
+            {
+                _id: findUser._id,
+                roles: findUser.roles,
+                firstname: findUser.firstname,
+                lastname: findUser.lastname,
+                email: findUser.email,
+                mobile: findUser.mobile,
+                address: findUser.address,
+            
+            },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '3d' }
+        );
+
+        findUser.accessToken = accessToken;
+        findUser.refreshToken = refreshToken;
+        await findUser.save();
+        
+
+        res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+        
+        res.status(200).json({
+            id: findUser._id,
+            roles: findUser.roles,
+            firstname: findUser.firstname,
+            email: email,
+            accessToken: accessToken
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+//logout an Admin 
+const adminLogout = asyncHandler(async (req, res) => {
+    const refreshToken = req.cookies.jwt; // Access the specific cookie containing the refreshToken
+
+    // Check if refreshToken is provided
+    if (!refreshToken) {
+        return res.status(204).json({ message: 'Refresh token is missing.' });
+    }
+
+    try {
+        // Find user with the provided refreshToken
+        const user = await User.findOne({ refreshToken: refreshToken }).exec();
+        if (!user) {
+            res.clearCookie('jwt', { httpOnly: true });
+            return res.sendStatus(204);
+        }
+        if(user.roles[0] !== '2030') {
+            return res.status(401).json({ message: 'Unauthorized User Detected!' });
+        }
+        // If user found, clear refreshToken and save the user
+        if (user) {
+            user.refreshToken = null;
+            await user.save();
+            res.clearCookie('jwt', { httpOnly: true });
+            return res.status(204).json({ message: 'Logout successful.' });
+        } else {
+            // If refreshToken doesn't match any user, return 401 Unauthorized
+            return res.status(401).json({ message: 'Invalid refresh token.' });
+        }
+    } catch (error) {
+        // Handle database or server errors
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 //login a user
 const loginUser = asyncHandler(async (req, res) => {
@@ -59,7 +168,11 @@ const loginUser = asyncHandler(async (req, res) => {
                     _id: findUser._id,
                     roles: findUser.roles,
                     firstname: findUser.firstname,
-                    lastname: findUser.lastname
+                    lastname: findUser.lastname,
+                    email: findUser.email,
+                    mobile: findUser.mobile,
+                    address: findUser.address,
+                
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
@@ -72,7 +185,11 @@ const loginUser = asyncHandler(async (req, res) => {
                 _id: findUser._id,
                 roles: findUser.roles,
                 firstname: findUser.firstname,
-                lastname: findUser.lastname
+                lastname: findUser.lastname,
+                email: findUser.email,
+                mobile: findUser.mobile,
+                address: findUser.address,
+            
             },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '3d' }
@@ -150,6 +267,7 @@ const logoutAUser = asyncHandler(async (req, res) => {
                 if(req.body.email) {user.email = req.body.email}
                 if(req.body.mobile) {user.mobile = req.body.mobile}
                 if(req.body.roles) {user.roles = req.body.roles}
+                if(req.body.address) {user.address = req.body.address}
                 const newUser= await user.save()
                 res.status(200).json(newUser);
 
@@ -306,4 +424,24 @@ const getAUser = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = {createUser, loginUser, logoutAUser, getAllUsers, updateAUser, updatePassword, forgotPassword, resetPassword, deleteAUser, getAUser};
+const getWishlist = asyncHandler(async (req, res) => {
+    const {_id}= req.user;
+    // Validate userId (you can use a validation library for more robust validation)
+    if (!_id) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    try {
+        const findUser = await User.findOne({ _id: _id }).populate('wishlist').exec();
+
+        if (!findUser) {
+            return res.status(404).json({ error: 'User not found!' });
+        } else {
+            return res.status(200).json(findUser.wishlist);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+module.exports = {createUser, loginUser, logoutAUser, getAllUsers, updateAUser, updatePassword, forgotPassword, resetPassword, deleteAUser, getAUser, adminLogin, adminLogout, getWishlist};

@@ -4,11 +4,11 @@ const verifyRoles = require('../Middlewares/verifyRoles.js');
 const coupon = require('../Controllers/couponCtrl.js');
 
 router.post('/',  verifyRoles('2030'), coupon.createCoupon);
-// router.get('/',  users.getAllUsers);
-// router.put('/:id', users.updateAUser);
-// router.put('/:id', users.updatePassword);
-// router.delete('/:id', verifyRoles('2030'), users.deleteAUser);
-// router.get('/:id',  users.getAUser);
+router.get('/', coupon.getCoupons);
+router.get('/:id', coupon.getCoupon);
+router.put('/:id',  verifyRoles('2030'), coupon.updateCoupon);
+router.delete('/:id',  verifyRoles('2030'), coupon.deleteCoupon);
+
 
 
 

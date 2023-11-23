@@ -62,7 +62,10 @@ const verifyRefreshToken = asyncHandler(async (req, res, next) => {
                     _id: decoded._id,
                      roles: decoded.roles,
                     firstname: decoded.firstname,
-                    lastname: decoded.lastname
+                    lastname: decoded.lastname,
+                    email: decoded.email,
+                    mobile: decoded.mobile,
+                    address: decoded.address
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,

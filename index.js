@@ -22,6 +22,8 @@ app.use(morgan('dev'));
 
 app.use('/login', require('./Routes/loginRoute'));
 app.use('/logout', require('./Routes/loginRoute'));
+app.use('/adminlogin', require('./Routes/adminLoginRoute'));
+app.use('/adminlogout', require('./Routes/adminLoginRoute'));
 app.use('/createuser', require('./Routes/authRoute'));
 app.use('/getrefreshtoken', require('./Routes/refreshToken'));
 app.use('/updatepassword', require('./Routes/updatePasswordRoute'));
@@ -32,6 +34,7 @@ app.use('/getusers', require('./Routes/authRoute'));
 app.use('/updateuser', require('./Routes/authRoute'));
 app.use('/deleteuser', require('./Routes/authRoute'));
 app.use('/getuser', require('./Routes/authRoute'));
+app.use('/getwishlist', require('./Routes/getWishlistRoute'));
 
 app.use('/createproduct', require('./Routes/productsRoute'));
 app.use('/getproduct', require('./Routes/productsRoute'));
@@ -40,6 +43,8 @@ app.use('/updateproduct', require('./Routes/productsRoute'));
 app.use('/deleteproduct', require('./Routes/productsRoute'));
 app.use('/addwishlist', require('./Routes/productsRoute'));
 app.use('/rateproduct', require('./Routes/productsCategoryRoute'));
+app.use('/uploadproductimage', require('./Routes/productImagesRoute'));
+app.use('/requestcallback', require('./Routes/callbackRequestRoute'));
 
 app.use('/createblog', require('./Routes/blogsRoute'));
 app.use('/updateblog', require('./Routes/blogsRoute'));
@@ -48,6 +53,7 @@ app.use('/getblogs', require('./Routes/blogsRoute'));
 app.use('/deleteblog', require('./Routes/blogsRoute'));
 app.use('/likeblog', require('./Routes/blogsRoute'));
 app.use('/dislikeblog', require('./Routes/dislikedBlogsRoute'));
+app.use('/uploadblogimage', require('./Routes/blogImagesRoute'));
 
 app.use('/createcategory', require('./Routes/productsCategoryRoute'));
 app.use('/getcategories', require('./Routes/productsCategoryRoute'));
@@ -68,6 +74,10 @@ app.use('/updatebrand', require('./Routes/brandRoute'));
 app.use('/deletebrand', require('./Routes/brandRoute'));
 
 app.use('/createcoupon', require('./Routes/couponRoute'));
+app.use('/getcoupons', require('./Routes/couponRoute'));
+app.use('/getcoupon', require('./Routes/couponRoute'));
+app.use('/updatecoupon', require('./Routes/couponRoute'));
+app.use('/deletecoupon', require('./Routes/couponRoute'));
 
 
 
