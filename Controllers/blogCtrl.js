@@ -1,7 +1,7 @@
 const Blog = require('../Models/blogModel');
 const User = require('../Models/usersModel');
 const asyncHandler = require('express-async-handler');
-const cloudinaryUploadImg = require('../Utils/cloudinary');
+const { uploadImage, deleteImage} = require('../Utils/cloudinary');
 const fs = require('fs');
 
 
@@ -112,9 +112,9 @@ const getBlogs = asyncHandler(
     
     const likeBlog = asyncHandler(async (req, res) => {
         try {
-            const blogId = req.body.id;
+            const {_id} = req.body;
             // Find the blog you want to be liked
-            const blog = await Blog.findOne({ _id: blogId });
+            const blog = await Blog.findOne({ _id: _id });
             console.log('Found Blog:', blog);
             // Find the logged-in user liking the blog
             const loginUser = req?.user?._id;
@@ -130,7 +130,7 @@ const getBlogs = asyncHandler(
             // If the blog is already disliked by the user, remove the user from the dislikes array
             if (alreadyDisliked) {
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $pull: { dislikes: loginUser },
                         isDisliked: false,
@@ -143,7 +143,7 @@ const getBlogs = asyncHandler(
             if (isLiked) {
                 // If the blog is already liked, remove the user from the likes array
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $pull: { likes: loginUser },
                         isLiked: false,
@@ -154,7 +154,7 @@ const getBlogs = asyncHandler(
             } else {
                 // If the blog is not liked, add the user to the likes array
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $push: { likes: loginUser },
                         isLiked: true,
@@ -172,9 +172,9 @@ const getBlogs = asyncHandler(
 
     const dislikeBlog = asyncHandler(async (req, res) => {
         try {
-            const blogId = req.body.id;
-            // Find the blog you want to be liked
-            const blog = await Blog.findOne({ _id: blogId });
+            const {_id} = req.body;
+            // Find the blog you want to be disliked
+            const blog = await Blog.findOne({ _id: _id });
             console.log('Found Blog:', blog);
             // Find the logged-in user liking the blog
             const loginUser = req?.user?._id;
@@ -190,7 +190,7 @@ const getBlogs = asyncHandler(
             // If the blog is already disliked by the user, remove the user from the dislikes array
             if (alreadyLiked) {
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $pull: { likes: loginUser },
                         isLiked: false,
@@ -203,7 +203,7 @@ const getBlogs = asyncHandler(
             if (isDisliked) {
                 // If the blog is already liked, remove the user from the likes array
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $pull: { dislikes: loginUser },
                         isDisliked: false,
@@ -214,7 +214,7 @@ const getBlogs = asyncHandler(
             } else {
                 // If the blog is not liked, add the user to the likes array
                 const updatedBlog = await Blog.findByIdAndUpdate(
-                    blogId,
+                    _id,
                     {
                         $push: { dislikes: loginUser },
                         isDisliked: true,
@@ -234,7 +234,7 @@ const getBlogs = asyncHandler(
         async( req, res ) => {
             const {id} = req.params;
             try{
-            const uploader = async (path) => await cloudinaryUploadImg(path, "images");
+            const uploader = async (path) => await uploadImage(path, "images");
             
                 const urls = [];
                 const files = req.files;
@@ -263,8 +263,35 @@ const getBlogs = asyncHandler(
         }
     );
 
+    const deleteImages = asyncHandler(async (req, res) => {
+        const { public_id } = req.params;
+        const { id } = req.body;
+    
+        try {
+            // Find the product by its ID
+            const findBlog = await Blog.findOne({ _id: id });
+    
+            if (!findBlog) {
+                return res.status(404).json({ message: 'Blog not found' });
+            }
+    
+            // Remove the specified image ID from the images array
+            findBlog.images = findBlog.images.filter((image) => image.public_id !== public_id);
+    
+            // Save the updated product
+            const updatedBlog = await findBlog.save();
+    
+            // Delete the image from storage
+            await deleteImage(public_id, "images");
+    
+            res.status(201).json({ updatedBlog, message: 'Image deleted successfully' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    });
 
     
    
 
-module.exports = { createBlog, updateBlog, getABlog, getBlogs, deleteBlog, likeBlog, dislikeBlog, uploadImages }
+module.exports = { createBlog, updateBlog, getABlog, getBlogs, deleteBlog, likeBlog, dislikeBlog, uploadImages, deleteImages }

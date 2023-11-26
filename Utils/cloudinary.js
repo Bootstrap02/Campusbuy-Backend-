@@ -42,5 +42,21 @@ const deleteImage = (image) => {
 };
 
 
+const deleteOldImages = async () => {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-module.exports = { uploadImage, deleteImage };
+  // Fetch images older than 30 days
+  const olderImages = await cloudinary.search
+      .expression(`uploaded_at < ${thirtyDaysAgo.toISOString()}`)
+      .max_results(100)  // Adjust max_results as needed
+      .execute();
+
+  // Delete each older image
+  for (const image of olderImages.resources) {
+      await deleteImage(image);
+      // Add a delay to avoid rate limiting (adjust as needed)
+      await setTimeoutPromise(1000);
+  }
+};
+
+module.exports = { uploadImage, deleteImage, deleteOldImages };

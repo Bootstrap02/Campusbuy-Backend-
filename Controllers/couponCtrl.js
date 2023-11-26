@@ -20,7 +20,6 @@ const createCoupon = asyncHandler(
 
 const getCoupons = asyncHandler(
     async( req, res) =>{
-        const {name} = req.body;
         try{
                 const coupons = await Coupon.find({}).exec();
               if (coupons.length === 0) {

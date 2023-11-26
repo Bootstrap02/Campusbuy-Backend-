@@ -46,6 +46,7 @@ app.use('/rateproduct', require('./Routes/productsCategoryRoute'));
 app.use('/uploadproductimage', require('./Routes/productImagesRoute'));
 app.use('/deleteproductimage', require('./Routes/productDeleteImageRoute'));
 app.use('/requestcallback', require('./Routes/callbackRequestRoute'));
+app.use('/deleteoldimages', require('./Routes/productImagesRoute'));
 
 app.use('/createblog', require('./Routes/blogsRoute'));
 app.use('/updateblog', require('./Routes/blogsRoute'));
@@ -55,6 +56,7 @@ app.use('/deleteblog', require('./Routes/blogsRoute'));
 app.use('/likeblog', require('./Routes/blogsRoute'));
 app.use('/dislikeblog', require('./Routes/dislikedBlogsRoute'));
 app.use('/uploadblogimage', require('./Routes/blogImagesRoute'));
+app.use('/deleteblogimage', require('./Routes/blogImagesRoute'));
 
 app.use('/createcategory', require('./Routes/productsCategoryRoute'));
 app.use('/getcategories', require('./Routes/productsCategoryRoute'));

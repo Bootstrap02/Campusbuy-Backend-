@@ -7,6 +7,6 @@ const blog = require('../Controllers/blogCtrl.js');
 
 
 router.put("/:id", verifyRoles('2030'),  blogs.uploadPhotos.array('images', 10), blogs.blogResizePhotos, blog.uploadImages);
-
+router.delete("/:public_id", verifyRoles('2030'), blog.deleteImages);
 
 module.exports = router;

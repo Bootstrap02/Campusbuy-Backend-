@@ -69,7 +69,10 @@ const blogResizePhotos = async (req, res, next) => {
 
             // Delete the original file after processing
             await fs.unlink(file.path);
-            fs.unlink(multerStorage.destination);
+            fs.unlink(multerStorage.destination + '/' + file.filename, (err) => {
+                if (err) throw err;
+                console.log('successfully deleted ' + file.filename);
+            });
         } catch (error) {
             console.error('Error processing file:', error);
         }
