@@ -29,12 +29,20 @@ app.use('/getrefreshtoken', require('./Routes/refreshToken'));
 app.use('/updatepassword', require('./Routes/updatePasswordRoute'));
 app.use('/forgotpassword', require('./Routes/updatePasswordRoute'));
 app.use('/resetpassword', require('./Routes/resetPasswordRoute'));
+app.use('/getuniversities', require('./Routes/universityRoute'));
+app.use('/getuniversity', require('./Routes/universityRoute'));
 app.use(verifyJwt);
 app.use('/getusers', require('./Routes/authRoute'));
 app.use('/updateuser', require('./Routes/authRoute'));
 app.use('/deleteuser', require('./Routes/authRoute'));
 app.use('/getuser', require('./Routes/authRoute'));
 app.use('/getwishlist', require('./Routes/getWishlistRoute'));
+
+
+app.use('/createuniversity', require('./Routes/universityRoute'));
+app.use('/updateuniversity', require('./Routes/universityRoute'));
+app.use('/deleteuniversity', require('./Routes/universityRoute'));
+
 
 app.use('/createproduct', require('./Routes/productsRoute'));
 app.use('/getproduct', require('./Routes/productsRoute'));
