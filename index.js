@@ -9,6 +9,8 @@ const verifyRefreshToken = require('./Middlewares/verifyRefreshToken');
 const PORT = process.env.PORT || 3000;
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const corsOptions= require('./Config/corsOptions');
 
 dbConnect();
 
@@ -19,6 +21,8 @@ app.use(express.json()); // Parse JSON requests
 app.use(cookieParser()); // Parse Cookie requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 app.use(morgan('dev'));
+
+app.use(cors(corsOptions));
 
 app.use('/login', require('./Routes/loginRoute'));
 app.use('/logout', require('./Routes/loginRoute'));
