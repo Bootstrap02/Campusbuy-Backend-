@@ -58,6 +58,14 @@ var productsSchema = new mongoose.Schema({
         type: String
     },
 
+    premiumServices: {
+        type: Boolean,
+        default: false,
+        timestamps: true // Store the timestamp when the user becomes premium
+    },
+
+   
+
     ratings: [{
         star: { type: Number, min: 1, max: 5 },
         comment: String,

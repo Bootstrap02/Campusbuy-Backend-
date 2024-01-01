@@ -218,6 +218,64 @@ const getProducts = asyncHandler(
         }
     );
 
+
+    const addPremiumServices = asyncHandler(async (req, res) => {
+        const productId = req.params.id;
+      
+        try {
+          if (req.body.title) {
+            req.body.slug = slugify(req.body.title, { lower: true });
+          }
+          
+          let product = await Product.findOne({ _id: productId }).exec();
+          
+          if (!product) {
+            return res.status(404).json({ error: 'Product not found!' });
+          }
+      
+          // Toggle premiumServices
+          product.premiumServices = !product.premiumServices;
+      
+          // Save the updated product
+          await product.save();
+      
+          return res.status(200).json({ product, message: 'Premium service updated' });
+      
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
+      });
+      
+      const updatePremiumServices = asyncHandler(async () => {
+        const productId = req.params.id;
+        try {
+          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+      
+          // Find and update one product where premiumServices is true and updatedAt is older than 30 days
+          const result = await Product.findByIdAndUpdate({ _id: productId },
+            {
+              premiumServices: true,
+              updatedAt: { $lte: thirtyDaysAgo },
+            },
+            { $set: { premiumServices: false } }
+          );
+      
+          if (result) {
+            console.log('Product updated');
+          } else {
+            console.log('No product found to update');
+          }
+      
+        } catch (error) {
+          console.error('Error updating premiumServices:', error);
+        }
+      });
+      
+      // Set up interval to run the update function every day
+      setInterval(updatePremiumServices, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+    
+
     const requestCallback = asyncHandler(
         async (req, res) => {
             const { productId, phone } = req.body;
@@ -384,6 +442,8 @@ const getProducts = asyncHandler(
               updateAProduct, 
               deleteAProduct, 
               addToWishlist, 
+              addPremiumServices, 
+              updatePremiumServices, 
               rating, 
               uploadImages,
               deleteImages,

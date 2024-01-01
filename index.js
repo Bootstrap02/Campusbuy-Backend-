@@ -37,6 +37,8 @@ app.use('/getuniversities', require('./Routes/universityRoute'));
 app.use('/getuniversity', require('./Routes/universityRoute'));
 app.use('/getproduct', require('./Routes/productsRoute'));
 app.use('/getproducts', require('./Routes/productsRoute'));
+app.use('/updatepremiumservices', require('./Routes/premiumServicesTimeoutRoute'));
+
 app.use(verifyJwt);
 app.use('/getusers', require('./Routes/authRoute'));
 app.use('/updateuser', require('./Routes/authRoute'));
@@ -50,6 +52,7 @@ app.use('/updateuniversity', require('./Routes/universityRoute'));
 app.use('/deleteuniversity', require('./Routes/universityRoute'));
 
 
+app.use('/addpremiumservices', require('./Routes/premiumServicesRoute'));
 app.use('/createproduct', require('./Routes/productsRoute'));
 
 app.use('/updateproduct', require('./Routes/productsRoute'));

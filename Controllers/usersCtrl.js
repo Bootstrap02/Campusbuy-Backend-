@@ -217,37 +217,65 @@ const loginUser = asyncHandler(async (req, res) => {
 
 
 //logout a user 
+// const logoutAUser = asyncHandler(async (req, res) => {
+//     const refreshToken = req.cookies.jwt; // Access the specific cookie containing the refreshToken
+
+//     // Check if refreshToken is provided
+//     if (!refreshToken) {
+//         return res.status(204).json({ message: 'Refresh token is missing.' });
+//     }
+
+//     try {
+//         // Find user with the provided refreshToken
+//         const user = await User.findOne({ refreshToken: refreshToken }).exec();
+//         if (!user) {
+//             res.clearCookie('jwt', { httpOnly: true });
+//             return res.sendStatus(204);
+//         }
+//         // If user found, clear refreshToken and save the user
+//         if (user) {
+//             user.refreshToken = null;
+//             await user.save();
+//             res.clearCookie('jwt', { httpOnly: true });
+//             return res.status(204).json({ message: 'Logout successful.' });
+//         } else {
+//             // If refreshToken doesn't match any user, return 401 Unauthorized
+//             return res.status(401).json({ message: 'Invalid refresh token.' });
+//         }
+//     } catch (error) {
+//         // Handle database or server errors
+//         console.error(error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
 const logoutAUser = asyncHandler(async (req, res) => {
-    const refreshToken = req.cookies.jwt; // Access the specific cookie containing the refreshToken
+  const accessToken = req.body.accessToken;
 
-    // Check if refreshToken is provided
-    if (!refreshToken) {
-        return res.status(204).json({ message: 'Refresh token is missing.' });
-    }
+  // Check if accessToken is provided
+  if (!accessToken) {
+    return res.status(204).json({ message: 'Access token is missing.' });
+  }
 
-    try {
-        // Find user with the provided refreshToken
-        const user = await User.findOne({ refreshToken: refreshToken }).exec();
-        if (!user) {
-            res.clearCookie('jwt', { httpOnly: true });
-            return res.sendStatus(204);
-        }
-        // If user found, clear refreshToken and save the user
-        if (user) {
-            user.refreshToken = null;
-            await user.save();
-            res.clearCookie('jwt', { httpOnly: true });
-            return res.status(204).json({ message: 'Logout successful.' });
-        } else {
-            // If refreshToken doesn't match any user, return 401 Unauthorized
-            return res.status(401).json({ message: 'Invalid refresh token.' });
-        }
-    } catch (error) {
-        // Handle database or server errors
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+  try {
+    // Find user with the provided accessToken
+    const user = await User.findOne({ accessToken: accessToken }).exec();
+
+    // If user found, clear accessToken and save the user
+    if (user) {
+      user.accessToken = null;
+      await user.save();
+      return res.status(204).json({ message: 'Logout successful.' });
+    } else {
+      // If accessToken doesn't match any user, return 401 Unauthorized
+      return res.status(401).json({ message: 'Invalid access token.' });
     }
+  } catch (error) {
+    // Handle database or server errors
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
+
 
 
 
