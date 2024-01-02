@@ -27,10 +27,6 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
 
-    unhashedPassword: {
-        type: String
-    },
-
     passwordChangedAt: {
         type: Date,
     },

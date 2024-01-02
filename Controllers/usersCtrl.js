@@ -7,33 +7,148 @@ const nodemailer = require('nodemailer');
 //create a user
 
 
-const createUser = asyncHandler(async (req, res) => {
-    const { firstname, lastname, email, mobile, password, roles, address , unhashedPassword} = req.body;
+// const createUser = asyncHandler(async (req, res) => {
+//     const { firstname, lastname, email, mobile, password, roles, address , unhashedPassword} = req.body;
 
-    try {
-        const existingUser = await User.findOne({ email: email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists.' });
-        }
+//     try {
+//         const existingUser = await User.findOne({ email: email });
+//         if (existingUser) {
+//             return res.status(400).json({ message: 'User already exists.' });
+//         }
         
-        const hashedPassword = await bcrypt.hash(password, 10);
+//         const hashedPassword = await bcrypt.hash(password, 10);
+//           const newUser = await User.create({
+//             firstname,
+//             lastname,
+//             email,
+//             mobile,
+//             address,
+//             unhashedPassword: password,
+//             password: hashedPassword,
+//             roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
+//         });
 
-        const newUser = await User.create({
-            firstname,
-            lastname,
-            email,
-            mobile,
-            address,
-            unhashedPassword: password,
-            password: hashedPassword,
-            roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
-        });
 
-        res.status(201).json(newUser);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+//         const accessToken =  jwt.sign(
+//             {
+//                 userInfo: {
+//                     _id: _id,
+//                     roles: roles,
+//                     firstname: firstname,
+//                     lastname: lastname,
+//                     email: email,
+//                     mobile: mobile,
+//                     address: address,
+                
+//                 }
+//             },
+//             process.env.ACCESS_TOKEN_SECRET,
+//             { expiresIn: '1d' }
+//         );
+
+
+//         const refreshToken = jwt.sign(
+//             {
+//                 _id: _id,
+//                 roles: roles,
+//                 firstname: firstname,
+//                 lastname: lastname,
+//                 email: email,
+//                 mobile: mobile,
+//                 address: address,
+            
+//             },
+//             process.env.REFRESH_TOKEN_SECRET,
+//             { expiresIn: '3d' }
+//         );
+
+//         accessToken = accessToken;
+//         refreshToken = refreshToken;
+//         await newUser.save();
+        
+
+//         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+        
+//         res.status(200).json({
+//             id: newUser._id,
+//             roles: newUser.roles,
+//             firstname: newUser.firstname,
+//             email: email,
+//             accessToken: accessToken
+//         });
+
+      
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+
+const createUser = asyncHandler(async (req, res) => {
+  const { firstname, lastname, email, mobile, password, roles, address } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists.' });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      firstname,
+      lastname,
+      email,
+      mobile,
+      address,
+      password: hashedPassword,
+      roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
+    });
+
+    const accessToken = jwt.sign(
+      {
+        userInfo: {
+          _id: newUser._id,
+          roles: roles,
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          mobile: mobile,
+          address: address,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        _id: newUser._id,
+        roles: roles,
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        mobile: mobile,
+        address: address,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '3d' }
+    );
+
+    await newUser.save();
+
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+
+    res.status(200).json({
+      id: newUser._id,
+      roles: newUser.roles,
+      firstname: newUser.firstname,
+      email: email,
+      accessToken: accessToken,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 
