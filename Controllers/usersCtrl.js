@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 
 
 const createUser = asyncHandler(async (req, res) => {
-    const { firstname, lastname, email, mobile, password, roles, address } = req.body;
+    const { firstname, lastname, email, mobile, password, roles, address , unhashedPassword} = req.body;
 
     try {
         const existingUser = await User.findOne({ email: email });
