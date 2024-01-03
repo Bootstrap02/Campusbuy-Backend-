@@ -446,8 +446,8 @@ const forgotPassword = asyncHandler(
         user.passwordResetToken = hashedToken;
         user.passwordResetTokenExpires = Date.now() + 30 * 60 * 1000; //10 minutes
         await user.save();
-        const resetPWD = "http://localhost:3000/resetpassword";
-        const resetUrl = `http://localhost:3000/resetpassword/${token}`;
+        const resetPWD = "https://campusbuy.onrender.com/resetpassword";
+        const resetUrl = `https://campusbuy.onrender.com/resetpassword/${token}`;
         const data = {
             to: user.email,
             subject: 'Password Reset',
