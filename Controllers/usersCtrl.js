@@ -446,12 +446,13 @@ const forgotPassword = asyncHandler(
         user.passwordResetToken = hashedToken;
         user.passwordResetTokenExpires = Date.now() + 30 * 60 * 1000; //10 minutes
         await user.save();
+        const resetPWD = "http://localhost:3000/resetpassword";
         const resetUrl = `http://localhost:3000/resetpassword/${token}`;
         const data = {
             to: user.email,
             subject: 'Password Reset',
-            text: `Please click on the link to reset your password: ${resetUrl}`,
-            html: `<p>Please click on the link to reset your password. This link expires in 10 minutes from now. hurry!: <a href="${resetUrl}">Click here</a></p>`
+            text: `Please click on the link to reset your password: ${resetPWD}`,
+            html: `<p>Please click on the link to reset your password. This link expires in 10 minutes from now. hurry!: <a href="${resetPWD}">Click here</a></p>`
         };
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
