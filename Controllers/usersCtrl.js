@@ -476,7 +476,7 @@ const forgotPassword = asyncHandler(
             });
           
             console.log("Message sent: Your Forgot password token has been sent. %s", info.messageId)
-            res.status(200).json({message: 'Email sent!'})
+            res.status(200).json({message: 'Email sent!', Link : resetUrl})
        }catch(error) {
               console.error(error);
             res.status(500).json({message: 'Internal Server Error'})
