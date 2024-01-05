@@ -343,6 +343,7 @@ const updateAUser = asyncHandler(async (req, res) => {
             if (req.body.mobile2) user.mobile2 = req.body.mobile2;
             if (req.body.sex) user.sex = req.body.sex;
 
+            console.log(userId);
             const updatedUser = await user.save();
             res.status(200).json(updatedUser);
         }
