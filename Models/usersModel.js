@@ -22,6 +22,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    mobile2: {
+        type: String,
+        unique: true,
+    },
+    sex: {
+        type: String,
+        required: true,
+        
+    },
     password: {
         type: String,
         required: true,
@@ -57,6 +66,18 @@ const userSchema = new mongoose.Schema({
         ref: 'Product',
     },],
     callback: [{
+        _id: mongoose.Schema.Types.ObjectId,
+        firstname: String,
+        lastname: String,
+        mobile: String,
+    }],
+    message: [{
+        _id: mongoose.Schema.Types.ObjectId,
+        firstname: String,
+        lastname: String,
+        mobile: String,
+    }],
+    notification: [{
         _id: mongoose.Schema.Types.ObjectId,
         firstname: String,
         lastname: String,

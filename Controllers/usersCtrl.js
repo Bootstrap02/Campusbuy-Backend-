@@ -7,82 +7,6 @@ const nodemailer = require('nodemailer');
 //create a user
 
 
-// const createUser = asyncHandler(async (req, res) => {
-//     const { firstname, lastname, email, mobile, password, roles, address , unhashedPassword} = req.body;
-
-//     try {
-//         const existingUser = await User.findOne({ email: email });
-//         if (existingUser) {
-//             return res.status(400).json({ message: 'User already exists.' });
-//         }
-        
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//           const newUser = await User.create({
-//             firstname,
-//             lastname,
-//             email,
-//             mobile,
-//             address,
-//             unhashedPassword: password,
-//             password: hashedPassword,
-//             roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
-//         });
-
-
-//         const accessToken =  jwt.sign(
-//             {
-//                 userInfo: {
-//                     _id: _id,
-//                     roles: roles,
-//                     firstname: firstname,
-//                     lastname: lastname,
-//                     email: email,
-//                     mobile: mobile,
-//                     address: address,
-                
-//                 }
-//             },
-//             process.env.ACCESS_TOKEN_SECRET,
-//             { expiresIn: '1d' }
-//         );
-
-
-//         const refreshToken = jwt.sign(
-//             {
-//                 _id: _id,
-//                 roles: roles,
-//                 firstname: firstname,
-//                 lastname: lastname,
-//                 email: email,
-//                 mobile: mobile,
-//                 address: address,
-            
-//             },
-//             process.env.REFRESH_TOKEN_SECRET,
-//             { expiresIn: '3d' }
-//         );
-
-//         accessToken = accessToken;
-//         refreshToken = refreshToken;
-//         await newUser.save();
-        
-
-//         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
-        
-//         res.status(200).json({
-//             id: newUser._id,
-//             roles: newUser.roles,
-//             firstname: newUser.firstname,
-//             email: email,
-//             accessToken: accessToken
-//         });
-
-      
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
 
 const createUser = asyncHandler(async (req, res) => {
   const { firstname, lastname, email, mobile, password, roles, address } = req.body;
@@ -398,26 +322,36 @@ const logoutAUser = asyncHandler(async (req, res) => {
 
 //update(edit) a user
 
-    const updateAUser = asyncHandler(
-        async(req, res) => {
-            const use = req.params.id;
-           
-            const user = await User.findOne({_id : use}).exec();
-            if (!user) {res.status(401)
-                throw new Error('User not found!')
-            }else{
-                if(req.body.firstname) {user.firstname = req.body.firstname}
-                if(req.body.lastname) {user.lastname = req.body.lastname}
-                if(req.body.email) {user.email = req.body.email}
-                if(req.body.mobile) {user.mobile = req.body.mobile}
-                if(req.body.roles) {user.roles = req.body.roles}
-                if(req.body.address) {user.address = req.body.address}
-                const newUser= await user.save()
-                res.status(200).json(newUser);
+const updateAUser = asyncHandler(async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            }
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+        } else {
+            if (req.body.firstname) user.firstname = req.body.firstname;
+            if (req.body.lastname) user.lastname = req.body.lastname;
+            if (req.body.email) user.email = req.body.email;
+            if (req.body.password) user.password = hashedPassword;
+            if (req.body.mobile) user.mobile = req.body.mobile;
+            if (req.body.roles) user.roles = req.body.roles;
+            if (req.body.address) user.address = req.body.address;
+            if (req.body.university) user.university = req.body.university;
+            if (req.body.mobile2) user.mobile2 = req.body.mobile2;
+            if (req.body.sex) user.sex = req.body.sex;
+
+            const updatedUser = await user.save();
+            res.status(200).json(updatedUser);
         }
-    )
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
     //update password
     const updatePassword = asyncHandler(
@@ -477,7 +411,7 @@ const forgotPassword = asyncHandler(
             });
           
             console.log("Message sent: Your Forgot password token has been sent. %s", info.messageId)
-            res.status(200).json({message: 'Email sent!', Link : resetUrl})
+            res.status(200).json({_id: user._id, message: 'Email sent!', Link : resetUrl})
        }catch(error) {
               console.error(error);
             res.status(500).json({message: 'Internal Server Error'})
