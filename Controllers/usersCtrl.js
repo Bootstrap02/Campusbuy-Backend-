@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 
 
 const createUser = asyncHandler(async (req, res) => {
-  const { firstname, lastname, email, mobile, password, roles, address } = req.body;
+  const { firstname, lastname, email, mobile, mobile2, password, roles, address, sex, university } = req.body;
 
   try {
     const existingUser = await User.findOne({ email: email });
@@ -23,7 +23,10 @@ const createUser = asyncHandler(async (req, res) => {
       lastname,
       email,
       mobile,
+      mobile2,
       address,
+      sex,
+      university,
       password: hashedPassword,
       roles: roles ? roles : ['2010'], // Default role is 'user' if no roles provided
     });
@@ -324,10 +327,10 @@ const logoutAUser = asyncHandler(async (req, res) => {
 
 const updateAUser = asyncHandler(async (req, res) => {
     try {
-        const userId = req.params.id;
+        const {id} = req.params;
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-        const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ _id: id });
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });
@@ -343,7 +346,7 @@ const updateAUser = asyncHandler(async (req, res) => {
             if (req.body.mobile2) user.mobile2 = req.body.mobile2;
             if (req.body.sex) user.sex = req.body.sex;
 
-            console.log(userId);
+            console.log(id);
             const updatedUser = await user.save();
             res.status(200).json(updatedUser);
         }
