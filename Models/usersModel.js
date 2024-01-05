@@ -31,11 +31,20 @@ const userSchema = new mongoose.Schema({
         required: true,
         
     },
+    university: {
+        type: String,
+        required: true,
+        
+    },
     password: {
         type: String,
         required: true,
     },
-
+    address: {
+        type: String,
+        ref: 'Address',
+        required: true,
+    },
     passwordChangedAt: {
         type: Date,
     },
@@ -55,11 +64,6 @@ const userSchema = new mongoose.Schema({
     cart: {
         type: Array,
         default: [],
-    },
-    address: {
-        type: String,
-        ref: 'Address',
-        required: true,
     },
     wishlist: [{
         type: mongoose.Schema.Types.ObjectId,
