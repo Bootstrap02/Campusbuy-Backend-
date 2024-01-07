@@ -1,6 +1,6 @@
 const whiteList = [
 'https://campusbuy.vercel.app', 
-'http://localhost:3000'];
+'http://localhost:3001'];
 const corsOptions = {
     origin: (origin, callback) => {
         if (whiteList.indexOf(origin) !== -1 || !origin) {
