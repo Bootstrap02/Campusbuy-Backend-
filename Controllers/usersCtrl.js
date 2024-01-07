@@ -384,7 +384,7 @@ const forgotPassword = asyncHandler(
         user.passwordResetToken = hashedToken;
         user.passwordResetTokenExpires = Date.now() + 30 * 60 * 1000; //10 minutes
         await user.save();
-        const resetPWD = "http://localhost:3000/resetpassword"||"https://campusbuy.vercel.app/";
+        const resetPWD = "http://localhost:3000/resetpassword"||"https://campusbuy.vercel.app/resetpassword";
         const resetUrl = `https://campusbuy.onrender.com/resetpassword/${token}`;
         const data = {
             to: user.email,

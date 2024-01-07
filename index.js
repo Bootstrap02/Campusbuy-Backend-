@@ -37,6 +37,7 @@ app.use('/getuniversities', require('./Routes/universityRoute'));
 app.use('/getuniversity', require('./Routes/universityRoute'));
 app.use('/getproduct', require('./Routes/productsRoute'));
 app.use('/getproducts', require('./Routes/productsRoute'));
+app.use('/getcategories', require('./Routes/productsCategoryRoute'));
 app.use('/updatepremiumservices', require('./Routes/premiumServicesTimeoutRoute'));
 
 app.use(verifyJwt);
@@ -75,7 +76,6 @@ app.use('/uploadblogimage', require('./Routes/blogImagesRoute'));
 app.use('/deleteblogimage', require('./Routes/blogImagesRoute'));
 
 app.use('/createcategory', require('./Routes/productsCategoryRoute'));
-app.use('/getcategories', require('./Routes/productsCategoryRoute'));
 app.use('/getcategory', require('./Routes/productsCategoryRoute'));
 app.use('/updatecategory', require('./Routes/productsCategoryRoute'));
 app.use('/deletecategory', require('./Routes/productsCategoryRoute'));

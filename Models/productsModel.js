@@ -29,7 +29,10 @@ var productsSchema = new mongoose.Schema({
         required: true
     },
 
-    address: {
+    location: {
+        type: String
+    },
+    university: {
         type: String
     },
 
@@ -40,6 +43,12 @@ var productsSchema = new mongoose.Schema({
     brand: {
         type: String
     },
+    condition: {
+        type: String
+    },
+    person: {
+        type: String
+    },
 
     quantity: {
         type: Number,
@@ -48,8 +57,29 @@ var productsSchema = new mongoose.Schema({
 
     sold: {
         type: Number,
-         select: false // Uncomment if you want to hide this field by default
     },
+    stock: {
+        type: Number,
+    },
+    mobile: {
+        type: Number,
+    },
+    mobile2: {
+        type: Number,
+    },
+    fault: {
+        type: String,
+    },
+    details: {
+        type: String,
+    },
+    seller: {
+        type: String,
+    },
+    sellerLocation: {
+        type: String,
+    },
+    
 
 
     images: [],

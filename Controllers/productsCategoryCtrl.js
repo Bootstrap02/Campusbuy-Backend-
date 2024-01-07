@@ -21,7 +21,7 @@ const createCategory = asyncHandler(
 
 const getCategories = asyncHandler(async (req, res) => {
     try {
-        const categories = await Category.find({});
+        const categories = await Category.find();
         res.status(200).json(categories);
     } catch (error) {
         console.error(error);
